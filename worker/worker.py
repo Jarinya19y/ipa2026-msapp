@@ -1,4 +1,5 @@
 import os
+import time
 import json
 import pika
 from datetime import datetime, timezone
@@ -88,9 +89,17 @@ def process_message(ch, method, properties, body):
 
 
 def start_worker():
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials)
-    )
+    while True:
+        try:
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(host=RABBITMQ_HOST, credentials=credentials)
+            )
+            print("[*] Successfully connected to RabbitMQ!", flush=True)
+            break
+        except pika.exceptions.AMQPConnectionError:
+            print("[!] RabbitMQ not ready yet, retrying in 5 seconds...", flush=True)
+            time.sleep(5)
+
     channel = connection.channel()
 
     channel.exchange_declare(exchange="jobs", exchange_type="direct")
