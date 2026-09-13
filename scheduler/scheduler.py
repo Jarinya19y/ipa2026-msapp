@@ -32,4 +32,7 @@ def scheduler():
 
 
 if __name__ == " __main__":
-    scheduler()
+    while True:
+        print("Sending scheduled job...")
+        produce()
+        time.sleep(60)
