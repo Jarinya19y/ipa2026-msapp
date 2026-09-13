@@ -5,11 +5,7 @@ from datetime import datetime, timezone
 from pymongo import MongoClient
 from netmiko import ConnectHandler
 
-
-MONGO_URI = os.environ.get(
-    "MONGO_URI",
-    "mongodb://admin:secretpassword@mongo:27017/"
-    )
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://admin:secretpassword@mongo:27017/")
 DB_NAME = os.environ.get("DB_NAME", "ipa2026_db")
 
 mongo_client = MongoClient(MONGO_URI)
@@ -26,7 +22,7 @@ credentials = pika.PlainCredentials(RABBITMQ_USER, RABBITMQ_PASS)
 
 def process_message(ch, method, properties, body):
     try:
-        raw_data = json.loads(body.decode('utf-8'))
+        raw_data = json.loads(body.decode("utf-8"))
 
         # Clean up keys by stripping leading/trailing whitespace
         data = {
@@ -41,9 +37,8 @@ def process_message(ch, method, properties, body):
 
         if not router_ip:
             print(
-                f"[!] Invalid message payload (missing IP/Host): {raw_data}",
-                flush=True
-                )
+                f"[!] Invalid message payload (missing IP/Host): {raw_data}", flush=True
+            )
 
             ch.basic_ack(delivery_tag=method.delivery_tag)
             return
@@ -51,17 +46,16 @@ def process_message(ch, method, properties, body):
         print(f"[*] Connecting to Router: {router_ip}...", flush=True)
 
         device = {
-            'device_type': 'cisco_ios',
-            'host': router_ip,
-            'username': username,
-            'password': password,
+            "device_type": "cisco_ios",
+            "host": router_ip,
+            "username": username,
+            "password": password,
         }
 
         with ConnectHandler(**device) as net_connect:
             parsed_output = net_connect.send_command(
-                "show ip interface brief",
-                use_textfsm=True
-                )
+                "show ip interface brief", use_textfsm=True
+            )
 
         print(f"Received job for router {router_ip}", flush=True)
 
@@ -69,19 +63,13 @@ def process_message(ch, method, properties, body):
 
         # Strip any unwanted spaces when extracting router_ip
         router_ip = (
-            data.get("ip") or
-            data.get("host") or
-            data.get("router_ip", "")
-            ).strip()
+            data.get("ip") or data.get("host") or data.get("router_ip", "")
+        ).strip()
 
         record = {
             "router_ip": router_ip,
             "interfaces": parsed_output,
-            "timestamp": datetime.now(
-                timezone.utc
-                ).strftime(
-                    "%Y-%m-%d %H:%M:%S.%f"
-                    )
+            "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f"),
         }
 
         insert_result = interfaces_collection.insert_one(record)
@@ -108,16 +96,11 @@ def start_worker():
     channel.exchange_declare(exchange="jobs", exchange_type="direct")
     channel.queue_declare(queue="router_jobs")
     channel.queue_bind(
-        queue="router_jobs",
-        exchange="jobs",
-        routing_key="check_interfaces"
-        )
+        queue="router_jobs", exchange="jobs", routing_key="check_interfaces"
+    )
 
     channel.basic_qos(prefetch_count=1)
-    channel.basic_consume(
-        queue="router_jobs",
-        on_message_callback=process_message
-        )
+    channel.basic_consume(queue="router_jobs", on_message_callback=process_message)
 
     print("[*] Worker1 waiting for messages. To exit press CTRL+C", flush=True)
     channel.start_consuming()

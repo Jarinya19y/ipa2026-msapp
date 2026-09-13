@@ -27,11 +27,7 @@ def add_router():
     password = request.form.get("password")
 
     if ip and username and password:
-        routers.insert_one({
-            "ip": ip,
-            "username": username,
-            "password": password
-        })
+        routers.insert_one({"ip": ip, "username": username, "password": password})
     return redirect("/")
 
 
@@ -46,13 +42,9 @@ def router_detail(router_ip):
     clean_ip = router_ip.strip()
     # Fetch the last 3 runs sorted by timestamp descending
     history = list(
-        interfaces_col.find(
-            {"router_ip": clean_ip}
-            ).sort("timestamp", -1).limit(3)
-        )
-    return render_template(
-        "router_detail.html", router_ip=clean_ip, history=history
-        )
+        interfaces_col.find({"router_ip": clean_ip}).sort("timestamp", -1).limit(3)
+    )
+    return render_template("router_detail.html", router_ip=clean_ip, history=history)
 
 
 if __name__ == "__main__":

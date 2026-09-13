@@ -25,5 +25,5 @@ def get_interfaces(ip, username, password):
     print(json.dumps(result, indent=2))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     get_interfaces()
