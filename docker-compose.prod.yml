@@ -1,0 +1,9 @@
+services:
+  web:
+    image: ${DOCKERHUB_USERNAME}/web:latest
+
+  scheduler:
+    image: ${DOCKERHUB_USERNAME}/scheduler:latest
+
+  worker:
+    image: ${DOCKERHUB_USERNAME}/worker:latest
