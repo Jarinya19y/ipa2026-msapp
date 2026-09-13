@@ -3,6 +3,7 @@ import sys
 from producer import produce
 from database import get_router_info
 
+
 def scheduler():
     INTERVAL = 10.0
     next_run = time.monotonic()
@@ -25,17 +26,18 @@ def scheduler():
         except Exception as e:
             print(f"Error fetching/producing router data: {e}", flush=True)
             time.sleep(3)
-            
+
         count += 1
         next_run += INTERVAL
         time.sleep(max(0.0, next_run - time.monotonic()))
 
+
 if __name__ == "__main__":
     print("Initializing Scheduler service...", flush=True)
-    
+
     # Wait for RabbitMQ/Mongo dependencies to stabilize before launching scheduler
-    time.sleep(5) 
-    
+    time.sleep(5)
+
     try:
         scheduler()
     except Exception as e:
