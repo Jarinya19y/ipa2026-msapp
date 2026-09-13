@@ -39,6 +39,7 @@ services:
 
   scheduler:
     build: ./scheduler
+    restart: always
     depends_on:
       - mongo
       - rabbitmq
