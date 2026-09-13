@@ -1,5 +1,5 @@
-pika
-pymongo
+pika>=1.3.0
+pymongo>=4.0.0
 netmiko
 textfsm
 ntc-templates
