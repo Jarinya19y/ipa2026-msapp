@@ -1,0 +1,79 @@
+services:
+  web:
+    build: ./web
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+    networks:
+      - app-net
+    env_file:
+      - .env
+    environment:
+      MONGO_URI: "mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/"
+      DB_NAME: "ipa2026_db"
+
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-net
+    env_file:
+      - .env
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - .env
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - app-net
+
+  scheduler:
+    build: ./scheduler
+    depends_on:
+      - mongo
+      - rabbitmq
+    networks:
+      - app-net
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: "1"
+      MONGO_URI: "mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/"
+      DB_NAME: "ipa2026_db"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_PASS: ${RABBITMQ_DEFAULT_PASS}
+
+  worker:
+    build: ./worker
+    depends_on:
+      - mongo
+      - rabbitmq
+    networks:
+      - app-net
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: "1"
+      MONGO_URI: "mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/"
+      DB_NAME: "ipa2026_db"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_PASS: ${RABBITMQ_DEFAULT_PASS}
+
+
+volumes:
+  mongo-data:
+
+networks:
+  app-net:

@@ -1,0 +1,5 @@
+pika
+pymongo
+netmiko
+textfsm
+ntc-templates

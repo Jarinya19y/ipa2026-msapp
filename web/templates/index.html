@@ -1,0 +1,28 @@
+<html>
+<head>
+    <title>Sample app</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <h1>You are calling me from {{ request.remote_addr }}</h1>
+
+    <form method="POST" action="/add">
+        IP: <input name="ip" required />
+        Username: <input name="username" required />
+        Password: <input type="password" name="password" required />
+        <button type="submit">Add Router</button>
+    </form>
+
+    <ul>
+        {% for router in routers %}
+          <li>
+             <a href="/router/{{ router.ip }}">{{ router.ip }}</a> - {{ router.username }}  
+             <form method="POST" action="/delete/{{ router._id }}" style="display:inline">
+               <button type="submit">Delete</button>
+             </form>
+          </li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

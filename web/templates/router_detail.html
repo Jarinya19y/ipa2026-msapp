@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Router Detail</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 4px 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #d3d3d3;
+        }
+    </style>
+</head>
+<body style="background-color: #b0c4de; font-family: sans-serif; padding: 20px;">
+
+    <h2>Router: {{ router_ip }}</h2>
+
+    {% if history %}
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Interface</th>
+                <th>IP Address</th>
+                <th>Status</th>
+                <th>Protocol</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in history %}
+                {% for intf in entry.interfaces %}
+                <tr>
+                    <td>{{ entry.timestamp }}</td>
+                    <td>{{ intf.interface }}</td>
+                    <td>{{ intf.ip_address }}</td>
+                    <td>{{ intf.status }}</td>
+                    <td>{{ intf.proto if intf.proto is defined else intf.protocol }}</td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No interface data found for this router.</p>
+    {% endif %}
+
+</body>
+</html>
